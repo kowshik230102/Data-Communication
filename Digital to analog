@@ -1,0 +1,256 @@
+import matplotlib.pyplot as plt
+import math
+
+# ================= INPUT =================
+
+bits = input("Enter binary data: ")
+
+# ================= SETTINGS =================
+
+bit_time = 1
+step = 0.001
+
+carrier_freq = 5
+
+f_low = 3
+f_high = 8
+
+# ================= TIME =================
+
+total_time = len(bits) * bit_time
+
+# ================= ASK =================
+
+x1 = []
+y1 = []
+
+t = 0
+
+while t < total_time:
+
+    bit_index = int(t / bit_time)
+
+    bit = bits[bit_index]
+
+    # 1 -> carrier
+    # 0 -> no signal
+
+    if bit == '1':
+
+        y = math.sin(2 * math.pi * carrier_freq * t)
+
+    else:
+
+        y = 0
+
+    x1.append(t)
+    y1.append(y)
+
+    t += step
+
+
+# ================= FSK =================
+
+x2 = []
+y2 = []
+
+t = 0
+
+while t < total_time:
+
+    bit_index = int(t / bit_time)
+
+    bit = bits[bit_index]
+
+    # different frequency
+
+    if bit == '1':
+
+        freq = f_high
+
+    else:
+
+        freq = f_low
+
+    y = math.sin(2 * math.pi * freq * t)
+
+    x2.append(t)
+    y2.append(y)
+
+    t += step
+
+
+# ================= BPSK =================
+
+x3 = []
+y3 = []
+
+t = 0
+
+while t < total_time:
+
+    bit_index = int(t / bit_time)
+
+    bit = bits[bit_index]
+
+    # phase shift
+
+    if bit == '1':
+
+        phase = math.pi
+
+    else:
+
+        phase = 0
+
+    y = math.sin(2 * math.pi * carrier_freq * t + phase)
+
+    x3.append(t)
+    y3.append(y)
+
+    t += step
+
+
+# ================= QPSK / 4PSK =================
+
+x4 = []
+y4 = []
+
+# make even bits
+
+bits4 = bits
+
+while len(bits4) % 2 != 0:
+
+    bits4 += "0"
+
+total_time4 = (len(bits4) / 2) * bit_time
+
+t = 0
+
+while t < total_time4:
+
+    pair_index = int(t / bit_time)
+
+    pair = bits4[pair_index * 2 : pair_index * 2 + 2]
+
+    # phase mapping
+
+    if pair == "00":
+
+        phase = 0
+
+    elif pair == "01":
+
+        phase = math.pi / 2
+
+    elif pair == "10":
+
+        phase = math.pi
+
+    else:
+
+        phase = 3 * math.pi / 2
+
+    y = math.sin(2 * math.pi * carrier_freq * t + phase)
+
+    x4.append(t)
+    y4.append(y)
+
+    t += step
+
+
+# ================= 8PSK =================
+
+x5 = []
+y5 = []
+
+bits8 = bits
+
+while len(bits8) % 3 != 0:
+
+    bits8 += "0"
+
+total_time8 = (len(bits8) / 3) * bit_time
+
+t = 0
+
+while t < total_time8:
+
+    group_index = int(t / bit_time)
+
+    group = bits8[group_index * 3 : group_index * 3 + 3]
+
+    value = int(group, 2)
+
+    phase = value * (2 * math.pi / 8)
+
+    y = math.sin(2 * math.pi * carrier_freq * t + phase)
+
+    x5.append(t)
+    y5.append(y)
+
+    t += step
+
+
+# ================= PLOT =================
+
+plt.figure(figsize=(12,10))
+
+# ASK
+
+plt.subplot(5,1,1)
+
+plt.plot(x1, y1)
+
+plt.title("ASK Modulation")
+
+plt.grid(True)
+
+
+# FSK
+
+plt.subplot(5,1,2)
+
+plt.plot(x2, y2)
+
+plt.title("FSK Modulation")
+
+plt.grid(True)
+
+
+# BPSK
+
+plt.subplot(5,1,3)
+
+plt.plot(x3, y3)
+
+plt.title("BPSK Modulation")
+
+plt.grid(True)
+
+
+# QPSK
+
+plt.subplot(5,1,4)
+
+plt.plot(x4, y4)
+
+plt.title("QPSK / 4PSK Modulation")
+
+plt.grid(True)
+
+
+# 8PSK
+
+plt.subplot(5,1,5)
+
+plt.plot(x5, y5)
+
+plt.title("8PSK Modulation")
+
+plt.grid(True)
+
+plt.tight_layout()
+
+plt.show()
