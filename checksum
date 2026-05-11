@@ -1,0 +1,55 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+int addBinary(int a, int b) {
+    int carry;
+    while (b != 0) {
+        carry = a & b;
+        a = a ^ b;
+        b = carry << 1;
+    }
+    return a;
+}
+
+int main() {
+    int n;
+    cout << "Enter number of data blocks: ";
+    cin >> n;
+
+    vector<int> data(n);
+
+    cout << "Enter binary blocks:\n";
+    for (int i = 0; i < n; i++) {
+        cin >> data[i];
+    }
+
+    int sum = 0;
+
+    // Step 1: Addition
+    for (int i = 0; i < n; i++) {
+        sum = addBinary(sum, data[i]);
+    }
+
+    // Step 2: 1's complement (checksum)
+    int checksum = ~sum;
+
+    cout << "Checksum (sender side): " << checksum << endl;
+
+    // Receiver side check
+    int receiverSum = 0;
+    for (int i = 0; i < n; i++) {
+        receiverSum = addBinary(receiverSum, data[i]);
+    }
+
+    receiverSum = addBinary(receiverSum, checksum);
+
+    cout << "Receiver result: " << receiverSum << endl;
+
+    // Check condition
+    if (receiverSum == -1 || receiverSum == 0)
+        cout << "No Error Detected ✔" << endl;
+    else
+        cout << "Error Detected ❌" << endl;
+
+    return 0;
+}
