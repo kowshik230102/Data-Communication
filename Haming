@@ -1,0 +1,132 @@
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+    string data;
+    cout << "Enter data bits: ";
+    cin >> data;
+    int m = data.length();
+    // ================= FIND PARITY BITS =================
+    int r = 0;
+    while ((1 << r) < (m + r + 1))
+    {
+        r++;
+    }
+    int total = m + r;
+    // ================= CREATE HAMMING ARRAY =================
+    int h[100];
+    int j = 0;
+    // right to left indexing
+    // parity positions = 1 2 4 8 ...
+
+    for (int i = 1; i <= total; i++)
+    {
+        if ((i & (i - 1)) == 0)
+        {
+            h[i] = 0;
+        }
+        else
+        {
+            h[i] = data[m - 1 - j] - '0';
+            j++;
+        }
+    }
+
+    // ================= CALCULATE PARITY =================
+
+    for (int i = 1; i <= total; i = i * 2)
+    {
+        int parity = 0;
+
+        for (int j = 1; j <= total; j++)
+        {
+            if (j & i)
+            {
+                parity ^= h[j];
+            }
+        }
+
+        h[i] = parity;
+    }
+
+    // ================= PRINT HAMMING CODE =================
+
+    cout << "\nHamming Code: ";
+
+    for (int i = total; i >= 1; i--)
+    {
+        cout << h[i];
+    }
+
+    // ================= RECEIVED CODE =================
+
+    string received;
+
+    cout << "\n\nEnter received code: ";
+    cin >> received;
+
+    int rcv[100];
+
+    j = 0;
+
+    for (int i = 1; i <= total; i++)
+    {
+        rcv[i] = received[total - 1 - j] - '0';
+        j++;
+    }
+
+    // ================= ERROR DETECTION =================
+
+    int error = 0;
+
+    for (int i = 1; i <= total; i = i * 2)
+    {
+        int parity = 0;
+
+        for (int j = 1; j <= total; j++)
+        {
+            if (j & i)
+            {
+                parity ^= rcv[j];
+            }
+        }
+
+        if (parity != 0)
+        {
+            error += i;
+        }
+    }
+
+    // ================= RESULT =================
+
+    if (error == 0)
+    {
+        cout << "\nNo Error\n";
+    }
+    else
+    {
+        cout << "\nError at position: " << error << endl;
+
+        // correction
+
+        if (rcv[error] == 0)
+        {
+            rcv[error] = 1;
+        }
+        else
+        {
+            rcv[error] = 0;
+        }
+
+        cout << "Corrected Code: ";
+
+        for (int i = total; i >= 1; i--)
+        {
+            cout << rcv[i];
+        }
+
+        cout << endl;
+    }
+
+    return 0;
+}
